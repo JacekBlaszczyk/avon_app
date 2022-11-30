@@ -229,6 +229,7 @@ sap.ui.define([
             var selectedProducts = this.getView().byId("changeTable").getSelectedItems().map(el => {
                     return { _id: el.getBindingContext("productsModel").getObject()._id, price: el.getBindingContext("productsModel").getObject().newPrice }
                 }).filter(el => el.price > 0),
+                oViewModel = this.getView().getModel("viewModel"),
                 oAuthModel = this.getView().getModel("auth"),
                 userId = oAuthModel.getProperty("/userId");
             oViewModel.setProperty("/busy", true);
