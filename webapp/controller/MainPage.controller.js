@@ -188,13 +188,13 @@ sap.ui.define([
                 iIndex = aProducts.findIndex(el => el._id === pairedProduct._id),
                 iAllIndex = aAllProducts.findIndex(el => el._id === pairedProduct._id);
             if (oProduct.pairedProducts.findIndex(el => el.name === pairedProduct.name) === -1) {
-                var iFindIndex = aCatalogProducts.findIndex(el => el.name === oProduct.name);
+                var iFindIndex = aCatalogProducts.findIndex(el => el.sku === oProduct.sku);
                 aCatalogProducts[iFindIndex].pairedProducts.push(pairedProduct);
                 aCatalogProducts[iFindIndex].highlight = "Success";
 
             }
             if (oAllProduct.pairedProducts.findIndex(el => el.name === pairedProduct.name) === -1) {
-                var iFindIndex2 = aAllCatalogProducts.findIndex(el => el.name === oProduct.name);
+                var iFindIndex2 = aAllCatalogProducts.findIndex(el => el.sku === oProduct.sku);
                 aAllCatalogProducts[iFindIndex2].pairedProducts.push(pairedProduct);
                 aAllCatalogProducts[iFindIndex2].highlight = "Success";
             }
