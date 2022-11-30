@@ -187,22 +187,22 @@ sap.ui.define([
                 oAllProduct = {...oModel.getProperty("/allCatalogProducts").find(el => el.name === oProduct.name) },
                 iIndex = aProducts.findIndex(el => el._id === pairedProduct._id),
                 iAllIndex = aAllProducts.findIndex(el => el._id === pairedProduct._id);
-            if (oProduct.pairedProducts.findIndex(el => el.name === pairedProduct.name) === -1) {
+            if (oProduct.pairedProducts.findIndex(el => el._id === pairedProduct._id) === -1) {
                 var iFindIndex = aCatalogProducts.findIndex(el => el.sku === oProduct.sku);
                 aCatalogProducts[iFindIndex].pairedProducts.push(pairedProduct);
                 aCatalogProducts[iFindIndex].highlight = "Success";
 
             }
-            if (oAllProduct.pairedProducts.findIndex(el => el.name === pairedProduct.name) === -1) {
+            if (oAllProduct.pairedProducts.findIndex(el => el._id === pairedProduct._id) === -1) {
                 var iFindIndex2 = aAllCatalogProducts.findIndex(el => el.sku === oProduct.sku);
                 aAllCatalogProducts[iFindIndex2].pairedProducts.push(pairedProduct);
                 aAllCatalogProducts[iFindIndex2].highlight = "Success";
             }
 
-            if (oProduct.pairedProducts.findIndex(el => el.name === pairedProduct.name) > -1) {
+            if (oProduct.pairedProducts.findIndex(el => el._id === pairedProduct._id) > -1) {
                 aProducts.splice(iIndex, 1);
             }
-            if (oAllProduct.pairedProducts.findIndex(el => el.name === pairedProduct.name) > -1) {
+            if (oAllProduct.pairedProducts.findIndex(el => el._id === pairedProduct._id) > -1) {
                 aAllProducts.splice(iAllIndex, 1);
             }
             oModel.setProperty(path, oProduct);
@@ -231,17 +231,20 @@ sap.ui.define([
                 }).filter(el => el.price > 0),
                 oAuthModel = this.getView().getModel("auth"),
                 userId = oAuthModel.getProperty("/userId");
+            oViewModel.setProperty("/busy", true);
             $.post({
                 url: `/route_to_prodsrv/prices?userId=${userId}`,
                 data: JSON.stringify(selectedProducts),
                 dataType: "text",
                 success: function(oData) {
+                    oViewModel.setProperty("/busy", false);
                     var countSuccess = JSON.parse(oData).countSuccess;
                     var countError = JSON.parse(oData).countError;
                     MessageBox.success(`Pomyślnie zmieniono ceny w ${countSuccess} produktach. ${countError} błędów.`);
                     this.getView().getModel("productsModel").setProperty("/changePriceProducts", []);
                 }.bind(this),
                 error: function(oError) {
+                    oViewModel.setProperty("/busy", false);
                     MessageBox.error(JSON.parse(oError.responseText).error);
                 }
             });

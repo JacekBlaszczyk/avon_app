@@ -1,7 +1,7 @@
 {
     "destinations": [{
             "name": "env_destination_prodsrv",
-            "url": "https://avon-price-app.herokuapp.com"
+            "url": "http://127.0.0.79:1337"
         },
         {
             "name": "env_invoice_prodsrv",
