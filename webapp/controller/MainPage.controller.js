@@ -210,8 +210,7 @@ sap.ui.define([
             oModel.setProperty("/allProducts", aAllProducts);
             oModel.setProperty("/catalogProducts", aCatalogProducts);
             oModel.setProperty("/allCatalogProducts", aAllCatalogProducts);
-            oDroppedControl.setSelected(true);
-            oDroppedControl.getParent().fireSelectionChange();
+            oViewModel.refresh(true);
 
             oViewModel.setProperty("/addToChangePriceEnabled", oModel.getProperty("/allCatalogProducts").findIndex(el => el.pairedProducts.length > 0) > -1);
 
