@@ -1,0 +1,12 @@
+<mvc:View
+	controllerName="Avon.controller.App"
+	displayBlock="true"
+	xmlns="sap.m"
+	xmlns:mvc="sap.ui.core.mvc"
+	xmlns:unified="sap.ui.unified"
+	xmlns:core="sap.ui.core"
+	xmlns:layout="sap.ui.layout"
+	xmlns:dnd="sap.ui.core.dnd">
+	<App id="app" busy="{viewModel>/busy}">
+	</App>
+</mvc:View>

@@ -1,0 +1,65 @@
+<mvc:View
+	controllerName="Avon.controller.LoginPage"
+	displayBlock="true"
+	xmlns="sap.m"
+	xmlns:l="sap.ui.layout"
+	xmlns:mvc="sap.ui.core.mvc"
+	xmlns:core="sap.ui.core"
+	xmlns:f="sap.ui.layout.form">
+			<f:SimpleForm id="SimpleFormChange354"
+			editable="true"
+			
+			layout="ResponsiveGridLayout"
+			title="{viewModel>/title}"
+			labelSpanXL="3"
+			labelSpanL="3"
+			labelSpanM="3"
+			labelSpanS="12"
+			adjustLabelSpan="false"
+			emptySpanXL="4"
+			emptySpanL="4"
+			emptySpanM="4"
+			emptySpanS="0"
+			columnsXL="1"
+			columnsL="1"
+			columnsM="1"
+			singleContainerFullSize="false" >
+			<f:content>
+				<Label text="Login" />
+				<Input value="{loginModel>/username}" liveChange="checkRegisterAvailable"/>
+				<Label text="Hasło" />
+				<Input type="Password" value="{loginModel>/password}" change="checkRegisterAvailable"/>
+				<Label text="Baselinker Token" visible="{viewModel>/registerMode}"/>
+				<Input liveChange="onTokenChange" showValueStateMessage="true" value="{loginModel>/token}" visible="{viewModel>/registerMode}" valueState="{viewModel>/tokenState}" valueStateText="{viewModel>/tokenStateText}">
+				<layoutData>
+						<l:GridData span="XL8 L8 M8 S8"/>
+				</layoutData>
+				</Input>
+				<Button icon="sap-icon://validate" type="Accept" press="onCheckToken" visible="{viewModel>/registerMode}">
+				<layoutData>
+						<l:GridData span="XL1 L1 M1 S1"/>
+				</layoutData>
+				</Button>
+				<Label visible="{viewModel>/registerMode}" text="Przysługująca zniżka" />
+				<Switch state="{viewModel>/fullDiscount}" customTextOn="40%" customTextOff="35%" visible="{viewModel>/registerMode}">
+				<layoutData>
+					<l:GridData indent="XL3 L3 M3 S3"  linebreak="true"  />
+				</layoutData>
+				</Switch>
+				
+				<Button text="Zaloguj się" press="onLogin" visible="{= !${viewModel>/registerMode} }">
+				<layoutData>
+						<l:GridData indent="XL3 L3 M3 S3"  linebreak="true"  />
+				</layoutData>
+				</Button>
+				<Link text="Nie masz konta? Zarejestruj się" visible="{= !${viewModel>/registerMode} }" press="switchToRegister"/>
+				<Button enabled="{viewModel>/registerAvailable}"  text="Zarejestruj się" press="onRegister" visible="{viewModel>/registerMode}">
+				<layoutData>
+						<l:GridData indent="XL3 L3 M3 S3"  linebreak="true"  />
+				</layoutData>
+				</Button>
+				<Link text="Masz już konto? Zaloguj się" visible="{viewModel>/registerMode}" press="switchToLogin" />
+			</f:content>
+		</f:SimpleForm>
+		
+</mvc:View>

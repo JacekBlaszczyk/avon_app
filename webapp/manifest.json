@@ -1,0 +1,125 @@
+{
+    "_version": "1.7.0",
+    "sap.app": {
+        "id": "Avon",
+        "type": "application",
+        "i18n": "i18n/i18n.properties",
+        "applicationVersion": {
+            "version": "1.0.0"
+        },
+        "title": "{{appTitle}}",
+        "description": "{{appDescription}}",
+        "dataSources": {
+            "SRV": {
+                "uri": "http://localhost:5000/route_to_prodsrv/",
+                "type": "OData",
+                "settings": {
+                    "odataVersion": "4.0"
+                }
+            }
+        }
+    },
+
+    "sap.ui": {
+        "technology": "UI5",
+        "icons": {
+            "icon": "",
+            "favIcon": "",
+            "phone": "",
+            "phone@2": "",
+            "tablet": "",
+            "tablet@2": ""
+        },
+        "deviceTypes": {
+            "desktop": true,
+            "tablet": true,
+            "phone": true
+        },
+        "supportedThemes": [
+            "sap_hcb",
+            "sap_belize"
+
+        ]
+    },
+
+    "sap.ui5": {
+        "rootView": {
+            "viewName": "Avon.view.App",
+            "type": "XML"
+        },
+        "dependencies": {
+            "minUI5Version": "1.30.0",
+            "libs": {
+                "sap.ui.core": {},
+                "sap.m": {}
+            }
+        },
+        "contentDensities": {
+            "compact": true,
+            "cozy": true
+        },
+        "models": {
+            "i18n": {
+                "type": "sap.ui.model.resource.ResourceModel",
+                "settings": {
+                    "bundleName": "Avon.i18n.i18n"
+                }
+            },
+            "": {
+                "type": "sap.ui.model.odata.v4.ODataModel",
+                "dataSource": "SRV",
+                "preload": true,
+                "settings": {
+                    "synchronizationMode": "None",
+                    "groupId": "$direct"
+                }
+            }
+        },
+        "resources": {
+            "css": [{
+                "uri": "css/style.css"
+            }]
+        },
+        "routing": {
+            "config": {
+                "fullWidth": true,
+                "routerClass": "sap.m.routing.Router",
+                "viewType": "XML",
+                "async": true,
+                "viewPath": "Avon.view",
+                "controlAggregation": "pages",
+                "controlId": "app",
+                "clearTarget": false,
+                "transition": "slide"
+            },
+            "routes": [{
+                    "name": "LoginPage",
+                    "pattern": "",
+                    "target": [
+                        "TargetLoginPage"
+                    ]
+                },
+                {
+                    "name": "MainPage",
+                    "pattern": "main",
+                    "target": [
+                        "TargetMainPage"
+                    ]
+                }
+            ],
+            "targets": {
+                "TargetLoginPage": {
+                    "viewType": "XML",
+                    "viewId": "login",
+                    "viewName": "LoginPage"
+                },
+                "TargetMainPage": {
+                    "viewType": "XML",
+                    "viewId": "main",
+                    "viewName": "MainPage"
+                }
+            }
+        }
+    }
+
+}
