@@ -1,9 +1,12 @@
 {
-  "dependencies": {
-    "@sap/approuter": "^6.8.2",
-    "axios": "^0.27.2"
-  },
-  "scripts": {
-    "start": "node node_modules/@sap/approuter/approuter.js"
-  }
+    "engines": {
+        "node": "16.17.0"
+    },
+    "dependencies": {
+        "@sap/approuter": "^6.8.2",
+        "axios": "^0.27.2"
+    },
+    "scripts": {
+        "start": "node node_modules/@sap/approuter/approuter.js"
+    }
 }
