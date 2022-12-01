@@ -163,7 +163,7 @@
 					<headerToolbar>
 					<Toolbar>
 						<ToolbarSpacer />
-						<Checkbox text="Zmień SKU" selected="{viewModel>/changeSku}" />
+						<CheckBox text="Zmień SKU" selected="{viewModel>/changeSku}" />
 						<Label text="Prowizja (%)" />
 						<Input type="Number" value="{viewModel>/brokeragePercent}" />
 						<Label text="Marża" />
