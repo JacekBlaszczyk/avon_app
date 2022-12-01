@@ -198,9 +198,9 @@
 					<ColumnListItem>
 						<cells>
 							<Image src="{productsModel>imageUrl}" height="150px" width="150px"/>
-							<Text text="{productsModel>sku}" />
-							<Text text="{productsModel>catalogSku}" />
 							<Text text="{productsModel>name}" />
+							<Text text="{productsModel>sku}" />
+							<Text text="{productsModel>catalogSku}" />							
 							<Text text="{productsModel>price}" />
 							<Input type="Number" value="{productsModel>boughtPrice}" />
 							<Input type="Number" value="{productsModel>newPrice}" />
