@@ -59,8 +59,8 @@
 					<headerToolbar>
 					<Toolbar>
 						<SearchField liveChange="onSearchCatalog"/>
-						<ToolbarSpacer />				
-				<Button press="onAddToPriceChange" type="Emphasized" text="Dodaj sparowane do zmieniania cen" enabled="{viewModel>/addToChangePriceEnabled}"/>
+						<!-- <ToolbarSpacer />				
+				<Button press="onAddToPriceChange" type="Emphasized" text="Dodaj sparowane do zmieniania cen" enabled="{viewModel>/addToChangePriceEnabled}"/> -->
 						</Toolbar>
 				</headerToolbar>
 				<columns>

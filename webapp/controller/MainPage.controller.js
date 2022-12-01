@@ -212,8 +212,8 @@ sap.ui.define([
             oModel.setProperty("/catalogProducts", aCatalogProducts);
             oModel.setProperty("/allCatalogProducts", aAllCatalogProducts);
             oViewModel.refresh(true);
-
-            oViewModel.setProperty("/addToChangePriceEnabled", oModel.getProperty("/allCatalogProducts").findIndex(el => el.pairedProducts.length > 0) > -1);
+            this.onAddToPriceChange();
+            // oViewModel.setProperty("/addToChangePriceEnabled", oModel.getProperty("/allCatalogProducts").findIndex(el => el.pairedProducts.length > 0) > -1);
 
         },
         navToProducts: function() {
