@@ -24,7 +24,8 @@ sap.ui.define([
                 margin: "0",
                 baselinkerToken: "",
                 storageId: "",
-                loggedIn: false
+                loggedIn: false,
+                changeSku: false
             });
             this.getView().setModel(oModel, "invoiceModel");
             this.getView().setModel(oModel, "productsModel");
@@ -327,6 +328,26 @@ sap.ui.define([
             oModel.setProperty("/changePriceProducts", aNewProducts);
         },
         onPriceOrDiscountChange: function(oEvent) {
+            var oProduct = oEvent.getSource().getBindingContext("productsModel").getObject();
+            if (isNaN(oProduct.price.replace(",", "."))) {
+                oProduct.priceState = "Error";
+            } else {
+                oProduct.priceState = "None";
+                oProduct.price = oProduct.price.replace(",", ".");
+                oProduct.finalPrice = Math.ceil(parseFloat(oProduct.price) * (100 - oProduct.discount)) / 100
+            }
+        },
+        onProvisionChange: function(oEvent) {
+            var oProduct = oEvent.getSource().getBindingContext("productsModel").getObject();
+            if (isNaN(oProduct.price.replace(",", "."))) {
+                oProduct.priceState = "Error";
+            } else {
+                oProduct.priceState = "None";
+                oProduct.price = oProduct.price.replace(",", ".");
+                oProduct.finalPrice = Math.ceil(parseFloat(oProduct.price) * (100 - oProduct.discount)) / 100
+            }
+        },
+        onMarginChange: function(oEvent) {
             var oProduct = oEvent.getSource().getBindingContext("productsModel").getObject();
             if (isNaN(oProduct.price.replace(",", "."))) {
                 oProduct.priceState = "Error";

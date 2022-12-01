@@ -163,6 +163,7 @@
 					<headerToolbar>
 					<Toolbar>
 						<ToolbarSpacer />
+						<Checkbox text="Zmień SKU" selected="{viewModel>/changeSku}" />
 						<Label text="Prowizja (%)" />
 						<Input type="Number" value="{viewModel>/brokeragePercent}" />
 						<Label text="Marża" />
@@ -178,6 +179,12 @@
 						<Title text="Nazwa" />
 					</Column>
 					<Column>
+						<Title text="Aktualne SKU" />
+					</Column>
+					<Column>
+						<Title text="Nowe SKU" />
+					</Column>
+					<Column>
 						<Title text="Cena" />
 					</Column>
 					<Column>
@@ -191,6 +198,8 @@
 					<ColumnListItem>
 						<cells>
 							<Image src="{productsModel>imageUrl}" height="150px" width="150px"/>
+							<Text text="{productsModel>sku}" />
+							<Text text="{productsModel>catalogSku}" />
 							<Text text="{productsModel>name}" />
 							<Text text="{productsModel>price}" />
 							<Input type="Number" value="{productsModel>boughtPrice}" />
