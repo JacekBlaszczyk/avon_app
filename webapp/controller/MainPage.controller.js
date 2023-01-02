@@ -51,7 +51,7 @@ sap.ui.define([
                                         oModel.setProperty("/products", oData.value);
                                         oModel.setProperty("/productsCount", oData.value.length);
                                         $.get({
-                                            url: `/route_to_prodsrv/catalogue/12?userId=${userId}`,
+                                            url: `/route_to_prodsrv/catalogue/1?userId=${userId}`,
                                             success: function(oData) {
                                                 oModel.setProperty("/catalogProducts", oData.products.map(el => { return {...el, pairedProducts: [], highlight: "None" } }));
                                                 oModel.setProperty("/allCatalogProducts", oData.products.map(el => { return {...el, pairedProducts: [], highlight: "None" } }));
