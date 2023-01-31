@@ -3,7 +3,7 @@
 	displayBlock="true"
 	xmlns="sap.m"
 	xmlns:mvc="sap.ui.core.mvc"
-	xmlns:unified="sap.ui.unified"
+	xmlns:u="sap.ui.unified"
 	xmlns:core="sap.ui.core"
 	xmlns:layout="sap.ui.layout"
 	xmlns:dnd="sap.ui.core.dnd">
@@ -53,14 +53,16 @@
 				<Page id="all">
 				<headerContent>
 					<Button text="Zmiana cen" press="navToPrices"/>
+					<Button text="Faktura" press="navToInvoice"/>
 				</headerContent>
 				<Table growing="true" growingThreshold="50" growingScrollToLoad="true" selectionChange="onMainTableSelectionChange" sticky="HeaderToolbar" id="rightTable" items="{productsModel>/catalogProducts}"
 					>
 					<headerToolbar>
 					<Toolbar>
-						<SearchField liveChange="onSearchCatalog"/>
-						<!-- <ToolbarSpacer />				
-				<Button press="onAddToPriceChange" type="Emphasized" text="Dodaj sparowane do zmieniania cen" enabled="{viewModel>/addToChangePriceEnabled}"/> -->
+						<SearchField liveChange="onSearchCatalog" value="{viewModel>/searchQuery}"/>
+						<ToolbarSpacer />		
+						<CheckBox text="Pokaż tylko sparowane" select="onSearchCatalog" selected="{viewModel>/onlyPaired}"/>		
+						<Button press="onAddToPriceChange" type="Emphasized" text="Dodaj sparowane do zmieniania cen"/>
 						</Toolbar>
 				</headerToolbar>
 				<columns>
@@ -80,23 +82,28 @@
 					<Column width="10%" hAlign="Center">
 						<Title text="Cena zakupu" />
 					</Column>
-					<Column width="30%" hAlign="Center">
+					<Column width="20%" hAlign="Center">
 						<Title text="Promocja" />
 					</Column>
-					
+					<Column width="10%" hAlign="Center"/>
 				</columns>
 				<items>
 					<ColumnListItem  highlight="{productsModel>highlight}">
 						<cells>
 							<Image src="{productsModel>imageUrl}" height="70px" width="70px"/>
 							<Text text="{productsModel>sku}" />
-							<Text text="{productsModel>name}" />
+							<VBox>
+								<Title text="{productsModel>name}" />
+								<Text text="{productsModel>pairedProduct/name}" />								
+							</VBox>
+							
 							<Input value="{productsModel>price}" change="onPriceOrDiscountChange" valueStateText="Błędna cena" valueState="{productsModel>priceState}"/>
 							<Select items="{viewModel>/discounts}" change="onPriceOrDiscountChange" selectedKey="{productsModel>discount}">
 								<core:Item key="{viewModel>key}" text="{viewModel>value}" />
 							</Select>
 							<Text text="{productsModel>finalPrice}" />
-							<Text text="{productsModel>promotion}" />
+							<Text text="{productsModel>promotion}" />							
+							<Button visible="{productsModel>hasPairedProduct}" type="Reject" press="unpairCatalogProduct" icon="sap-icon://decline" tooltip="Usuń sparowany produkt"/>
 						</cells>
 					</ColumnListItem>
 				</items>
@@ -105,58 +112,70 @@
 					</dragDropConfig>
 			</Table>
 				</Page>
-				<!-- <Page id="catalog">
+				<Page id="invoice" title="Faktura">
 				<headerContent>
-					<Button text="Wszystkie produkty" press="navToProducts"/>
 					<Button text="Zmiana cen" press="navToPrices"/>
+					<Button text="Wszystkie produkty" press="navToProducts"/>
 				</headerContent>
-				<Table id="catalogTable" sticky="HeaderToolbar"  growing="true" growingThreshold="1000" items="{productsModel>/catalogProducts}"
+				<Table growing="true" growingThreshold="50" growingScrollToLoad="true" selectionChange="onInvoiceTableSelectionChange" sticky="HeaderToolbar" id="invoiceTable" items="{invoiceModel>/products}"
 					>
 					<headerToolbar>
 					<Toolbar>
-						<SearchField liveChange="onSearchCatalog"/>
-						<Button text="Sparuj z magazynem" press="onPairCatalog" />
-						<Button text="Przenieś niesparowane" press="onAddAllToMaster" />						
-						<Button text="Przenieś sparowane do zmiany cen" press="onMoveToChangePricesCatalog" />
-					</Toolbar>
+						<u:FileUploader
+			id="fileUploader"
+			name="invoice"
+			multiple="true"
+			fileType="pdf"
+			uploadUrl="/route_to_invoicesrv/invoice"
+			tooltip="Dodaj fakturę z avonu"
+			uploadComplete="handleUploadComplete"/>
+		<Button
+			text="Załaduj faktury"
+			press="handleUploadPress"/>
+			<Input value="{invoiceModel>/orderNr}" />
+			<Button
+			text="Dodaj sparowane produkty do zamówienia"
+			press="addPairedProductsToOrder"
+			type="Emphasized"/>
+			</Toolbar>
 				</headerToolbar>
 				<columns>
-				<Column width="7%" />
-					<Column width="20%" />
-					<Column width="15%">
-						<Title text="Nazwa w katalogu" />
+					<Column width="10%" hAlign="Center"/>
+					<Column width="5%" hAlign="Center">
+						<Title text="Kod" />
 					</Column>
-					<Column width="15%">
-						<Title text="Twoja nazwa" />
+					<Column width="55%" hAlign="Center">
+						<Title text="Nazwa" />
 					</Column>
-					<Column>
-						<Title text="Kod AVON" />
+					<Column width="10%" hAlign="Center">
+						<Title text="Cena" />
 					</Column>
-					<Column>
-						<Title text="Cena zakupu" />
+					<Column width="10%" hAlign="Center">
+						<Title text="Ilość" />
 					</Column>
-					<Column>
-						<Title text="Twoja cena" />
-					</Column>
+					<Column width="10%" hAlign="Center"/>					
 				</columns>
 				<items>
-					<ColumnListItem highlight="{path: 'productsModel>yourName', formatter: '.formatHighlightCatalog'}">
+					<ColumnListItem  highlight="{invoiceModel>highlight}">
 						<cells>
-							<Button icon="sap-icon://arrow-left" press="onAddToMaster"/>
-							<Image src="{productsModel>imageUrl}"  height="150px" width="150px"/>
-							<Text text="{productsModel>name}" />
-							<Text text="{productsModel>yourName}" />
-							<Text text="{productsModel>sku}" />
-							<Text text="{productsModel>price}" />
-							<Text text="{productsModel>yourPrice}" />
+							<Image src="{invoiceModel>pairedProduct/imageUrl}" height="70px" width="70px"/>
+							<Text text="{invoiceModel>sku}" />
+							<Text text="{invoiceModel>name}" />
+							<Input value="{invoiceModel>unitPrice}" />
+							<Input value="{invoiceModel>amount}" />
+							<Button visible="{invoiceModel>hasPairedProduct}" type="Reject" press="unpairProduct" icon="sap-icon://decline" tooltip="Usuń sparowany produkt"/>
 						</cells>
 					</ColumnListItem>
 				</items>
-			</Table>	
-				</Page> -->
+				<dragDropConfig>
+						<dnd:DropInfo dropEffect="Move" drop="onPairInvoiceProduct" targetAggregation="items" dropPosition="On" dropLayout="Vertical"/>
+					</dragDropConfig>
+			</Table>
+				</Page>
 				<Page id="prices">
 				<headerContent>
 					<Button text="Wszystkie produkty" press="navToProducts"/>
+					<Button text="Faktura" press="navToInvoice"/>
 				</headerContent>
 				<Table id="changeTable" sticky="HeaderToolbar" mode="MultiSelect" growing="true" growingThreshold="1000" items="{productsModel>/changePriceProducts}"
 					selectionChange="onChangePriceTableSelectionChange" >

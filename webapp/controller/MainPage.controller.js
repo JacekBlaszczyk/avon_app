@@ -15,6 +15,9 @@ sap.ui.define([
                                 changePriceProducts: [],
                                 excelProducts: []
                             });
+                            var oInvoiceModel = new JSONModel({
+                                products: []
+                            });
                             var oViewModel = new JSONModel({
                                 addToChangePriceEnabled: false,
                                 changePriceEnabled: false,
@@ -25,9 +28,12 @@ sap.ui.define([
                                 baselinkerToken: "",
                                 storageId: "",
                                 loggedIn: false,
-                                changeSku: false
+                                changeSku: false,
+                                searchQuery: "",
+                                onlyPaired: false,
+                                init: true
                             });
-                            this.getView().setModel(oModel, "invoiceModel");
+                            this.getView().setModel(oInvoiceModel, "invoiceModel");
                             this.getView().setModel(oModel, "productsModel");
                             this.getView().setModel(oViewModel, "viewModel");
                         },
@@ -42,33 +48,54 @@ sap.ui.define([
                                 oViewModel = this.getView().getModel("viewModel"),
                                 oAuthModel = this.getView().getModel("auth"),
                                 userId = oAuthModel.getProperty("/userId");
-                            oViewModel.setProperty("/busy", true);
-                            if (userId) {
-                                $.get({
-                                    url: `/route_to_prodsrv/products?userId=${userId}`,
-                                    success: function(oData) {
-                                        oModel.setProperty("/allProducts", oData.value);
-                                        oModel.setProperty("/products", oData.value);
-                                        oModel.setProperty("/productsCount", oData.value.length);
-                                        $.get({
-                                            url: `/route_to_prodsrv/catalogue/1?userId=${userId}`,
-                                            success: function(oData) {
-                                                oModel.setProperty("/catalogProducts", oData.products.map(el => { return {...el, pairedProducts: [], highlight: "None" } }));
-                                                oModel.setProperty("/allCatalogProducts", oData.products.map(el => { return {...el, pairedProducts: [], highlight: "None" } }));
-                                                oViewModel.setProperty("/discounts", [{ key: 10, value: "10%" }, { key: 20, value: "20%" }, { key: oData.discount, value: `${oData.discount}%` }])
-                                                oViewModel.setProperty("/busy", false);
-                                            },
-                                            error: function(oError) {
-                                                MessageBox.error(JSON.parse(oError.responseText).error);
-                                                oViewModel.setProperty("/busy", false);
-                                            }
-                                        });
-                                    },
-                                    error: function(oError) {
-                                        MessageBox.error(JSON.parse(oError.responseText).error);
-                                        oViewModel.setProperty("/busy", false);
-                                    }
-                                });
+                            if (oViewModel.getProperty("/init")) {
+                                oViewModel.setProperty("/init", false)
+                                oViewModel.setProperty("/busy", true);
+                                if (userId) {
+                                    $.get({
+                                        url: `/route_to_prodsrv/products?userId=${userId}`,
+                                        success: function(oData) {
+                                            oModel.setProperty("/allProducts", oData.value);
+                                            oModel.setProperty("/products", oData.value);
+                                            oModel.setProperty("/productsCount", oData.value.length);
+                                            oViewModel.setProperty("/busy", true);
+                                            $.get({
+                                                url: `/route_to_prodsrv/catalogue/2?userId=${userId}`,
+                                                success: function(oData) {
+                                                    var aBaselinkerProducts = [...oModel.getProperty("/allProducts")]
+                                                    var aProducts = oData.products.map(el => {
+                                                        return {...el, highlight: "None", hasPairedProduct: false, priceState: el.price > 0 ? "None" : "Error" }
+                                                    });
+                                                    aProducts.forEach(product => {
+                                                        var found = aBaselinkerProducts.find(el => el.sku === product.sku);
+                                                        var foundIndex = aBaselinkerProducts.findIndex(el => el.sku === product.sku);
+                                                        if (found) {
+                                                            product.hasPairedProduct = true;
+                                                            product.highlight = "Success"
+                                                            product.pairedProduct = found;
+                                                            aBaselinkerProducts.splice(foundIndex, 1);
+                                                        }
+                                                        product.hasPairedProduct = !!found;
+                                                    })
+                                                    oModel.setProperty("/allProducts", aBaselinkerProducts);
+                                                    oModel.setProperty("/products", aBaselinkerProducts);
+                                                    oModel.setProperty("/catalogProducts", aProducts);
+                                                    oModel.setProperty("/allCatalogProducts", aProducts);
+                                                    oViewModel.setProperty("/discounts", [{ key: 10, value: "10%" }, { key: 20, value: "20%" }, { key: oData.discount, value: `${oData.discount}%` }])
+                                                    oViewModel.setProperty("/busy", false);
+                                                }.bind(this),
+                                                error: function(oError) {
+                                                    MessageBox.error(JSON.parse(oError.responseText).error);
+                                                    oViewModel.setProperty("/busy", false);
+                                                }
+                                            });
+                                        },
+                                        error: function(oError) {
+                                            MessageBox.error(JSON.parse(oError.responseText).error);
+                                            oViewModel.setProperty("/busy", false);
+                                        }
+                                    });
+                                }
                             }
 
                         },
@@ -126,8 +153,10 @@ sap.ui.define([
                         },
                         onSearchCatalog: function(oEvent) {
                             var oModel = this.getView().getModel("productsModel"),
-                                sValue = oEvent.getParameter("newValue"),
-                                aProducts = [...oModel.getProperty("/allCatalogProducts")].filter(el => ((!!el.name && el.name.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase().includes(sValue.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase())) || (!!el.sku && el.sku.includes(sValue))));
+                                oViewModel = this.getView().getModel("viewModel"),
+                                sValue = oViewModel.getProperty("/searchQuery"),
+                                onlyPaired = oViewModel.getProperty("/onlyPaired"),
+                                aProducts = [...oModel.getProperty("/allCatalogProducts")].filter(el => (((!!el.name && el.name.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase().includes(sValue.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase())) || (!!el.sku && el.sku.includes(sValue))) && (onlyPaired ? !!el.pairedProduct : true)));
                             oModel.setProperty("/catalogProducts", aProducts);
 
                         },
@@ -139,12 +168,12 @@ sap.ui.define([
                         },
                         onAddToPriceChange: function() {
                             var oModel = this.getView().getModel("productsModel"),
-                                selectedProducts = oModel.getProperty("/allCatalogProducts").filter(el => el.pairedProducts.length > 0),
+                                selectedProducts = oModel.getProperty("/allCatalogProducts").filter(el => !!el.pairedProduct && el.priceState === "None"),
                                 aTempProducts = [...oModel.getProperty("/changePriceProducts")],
                                 aProducts = [...oModel.getProperty("/catalogProducts")],
                                 aAllProducts = [...oModel.getProperty("/allCatalogProducts")];
                             selectedProducts.forEach(product => {
-                                aTempProducts.push(...product.pairedProducts.map(el => { return {...el, boughtPrice: product.finalPrice, newPrice: 0, catalogSku: product.sku } }));
+                                aTempProducts.push({...product.pairedProduct, boughtPrice: product.finalPrice, newPrice: 0, catalogSku: product.sku });
                             })
 
                             selectedProducts.forEach(product => {
@@ -188,22 +217,27 @@ sap.ui.define([
                                 oAllProduct = {...oModel.getProperty("/allCatalogProducts").find(el => el.name === oProduct.name) },
                                 iIndex = aProducts.findIndex(el => el._id === pairedProduct._id),
                                 iAllIndex = aAllProducts.findIndex(el => el._id === pairedProduct._id);
-                            if (oProduct.pairedProducts.findIndex(el => el._id === pairedProduct._id) === -1) {
+                            if (!oProduct.pairedProduct || oProduct.pairedProduct._id !== pairedProduct._id) {
                                 var iFindIndex = aCatalogProducts.findIndex(el => el.sku === oProduct.sku);
-                                aCatalogProducts[iFindIndex].pairedProducts.push(pairedProduct);
+                                aCatalogProducts[iFindIndex].pairedProduct = pairedProduct;
+                                oProduct.pairedProduct = pairedProduct;
                                 aCatalogProducts[iFindIndex].highlight = "Success";
+                                aCatalogProducts[iFindIndex].hasPairedProduct = true;
 
                             }
-                            if (oAllProduct.pairedProducts.findIndex(el => el._id === pairedProduct._id) === -1) {
+                            if (!oAllProduct.pairedProduct || oAllProduct.pairedProduct._id !== pairedProduct._id) {
                                 var iFindIndex2 = aAllCatalogProducts.findIndex(el => el.sku === oProduct.sku);
-                                aAllCatalogProducts[iFindIndex2].pairedProducts.push(pairedProduct);
+                                aAllCatalogProducts[iFindIndex2].pairedProduct = pairedProduct;
+                                oAllProduct.pairedProduct = pairedProduct;
                                 aAllCatalogProducts[iFindIndex2].highlight = "Success";
+                                aAllCatalogProducts[iFindIndex2].hasPairedProduct = true;
+
                             }
 
-                            if (oProduct.pairedProducts.findIndex(el => el._id === pairedProduct._id) > -1) {
+                            if (oProduct.pairedProduct._id === pairedProduct._id) {
                                 aProducts.splice(iIndex, 1);
                             }
-                            if (oAllProduct.pairedProducts.findIndex(el => el._id === pairedProduct._id) > -1) {
+                            if (oAllProduct.pairedProduct._id === pairedProduct._id) {
                                 aAllProducts.splice(iAllIndex, 1);
                             }
                             oModel.setProperty(path, oProduct);
@@ -212,9 +246,21 @@ sap.ui.define([
                             oModel.setProperty("/catalogProducts", aCatalogProducts);
                             oModel.setProperty("/allCatalogProducts", aAllCatalogProducts);
                             oViewModel.refresh(true);
-                            this.onAddToPriceChange();
+                            // this.onAddToPriceChange();
                             // oViewModel.setProperty("/addToChangePriceEnabled", oModel.getProperty("/allCatalogProducts").findIndex(el => el.pairedProducts.length > 0) > -1);
 
+                        },
+                        onPairInvoiceProduct: function(oEvent) {
+                            var pairedProduct = oEvent.getParameters().draggedControl.getBindingContext("productsModel").getObject(),
+                                oCtx = oEvent.getParameters().droppedControl.getBindingContext("invoiceModel"),
+                                oObject = oCtx.getObject(),
+                                oModel = this.getView().getModel("productsModel"),
+                                oInvoiceModel = this.getView().getModel("invoiceModel");
+                            if (!oInvoiceModel.getProperty("hasPairedProduct", oCtx)) {
+                                oObject.pairedProduct = pairedProduct;
+                                oObject.hasPairedProduct = true;
+                                oInvoiceModel.setProperty(oCtx.getPath(), oObject);
+                            }
                         },
                         navToProducts: function() {
                             this.getView().byId("SplitContainer").to(this.createId("all"));
@@ -224,6 +270,9 @@ sap.ui.define([
                         },
                         navToCatalog: function() {
                             this.getView().byId("SplitContainer").to(this.createId("catalog"));
+                        },
+                        navToInvoice: function() {
+                            this.getView().byId("SplitContainer").to(this.createId("invoice"));
                         },
                         onChangeBaselinkerPrices: function() {
                                 var selectedProducts = this.getView().byId("changeTable").getSelectedItems().map(el => {
@@ -253,6 +302,50 @@ sap.ui.define([
                 }
             });
         },
+        addPairedProductsToOrder: function() {
+            var selectedProducts = [],
+            notSelectedProducts = [],
+            oViewModel = this.getView().getModel("viewModel"),
+                oInvoiceModel = this.getView().getModel("invoiceModel"),
+                aProducts = oInvoiceModel.getProperty("/products"),
+                oAuthModel = this.getView().getModel("auth"),
+                userId = oAuthModel.getProperty("/userId"),
+                orderNr = oInvoiceModel.getProperty("/orderNr");
+                if(orderNr){
+            oViewModel.setProperty("/busy", true);
+            aProducts.forEach(product => {
+                if(product.hasPairedProduct){
+                    selectedProducts.push({
+                        id: product.pairedProduct._id,
+                        name: product.pairedProduct.name,
+                        amount: product.amount,
+                        price: product.unitPrice
+                    });
+                } else {
+                    notSelectedProducts.push(product);
+                }
+            })
+            $.post({
+                        url: `/route_to_prodsrv/invoice?userId=${userId}&orderNr=${orderNr}`,
+                        data: encodeURIComponent(JSON.stringify(selectedProducts)),
+                        dataType: "text",
+                        success: function(oData) {
+                                oViewModel.setProperty("/busy", false);
+                                var countSuccessPrice = JSON.parse(oData).countSuccessPrice;
+                                var countErrorPrice = JSON.parse(oData).countErrorPrice;
+                                MessageBox.success(`Pomyślnie dodano ${countSuccessPrice} produktów do zamówienia. ${countErrorPrice} błędów.`);
+            
+                                oInvoiceModel.setProperty("/products", notSelectedProducts);
+            }.bind(this),
+            error: function(oError) {
+            oViewModel.setProperty("/busy", false);
+            MessageBox.error(JSON.parse(oError.responseText).error);
+            }
+            });
+        } else {
+            MessageBox.error("Podaj numer zamówienia");
+            }
+            },
         onAddToMaster: function(oEvent) {
             var selectedProduct = oEvent.getSource().getBindingContext("productsModel").getObject(),
                 oModel = this.getView().getModel("productsModel"),
@@ -332,7 +425,7 @@ sap.ui.define([
         },
         onPriceOrDiscountChange: function(oEvent) {
             var oProduct = oEvent.getSource().getBindingContext("productsModel").getObject();
-            if (isNaN(oProduct.price.replace(",", "."))) {
+            if (isNaN(oProduct.price.replace(",", ".")) || oProduct.price == 0) {
                 oProduct.priceState = "Error";
             } else {
                 oProduct.priceState = "None";
@@ -393,7 +486,56 @@ sap.ui.define([
                 };
                 reader.readAsBinaryString(file);
             }
-        }
+        },
+        handleUploadComplete: function(oEvent) {
+			var sResponse = oEvent.getParameter("response"),
+            aBaselinkerProducts = this.getView().getModel("productsModel").getProperty("/allProducts"),
+				aProducts = JSON.parse(sResponse.replaceAll('<pre style="word-wrap: break-word; white-space: pre-wrap;">', "").replaceAll("</pre>", "")),
+                oViewModel = this.getView().getModel("viewModel");
+
+                oViewModel.setProperty("/busy", false);
+            aProducts.forEach(product => {
+                var found = aBaselinkerProducts.find(el => el.sku === product.sku);
+                if (found){
+                    product.hasPairedProduct = true;
+                    product.pairedProduct = found;
+                }
+                product.hasPairedProduct = !!found;
+            })
+			this.getView().getModel("invoiceModel").setProperty("/products", aProducts);
+
+		},
+        unpairProduct: function(oEvent){
+            var oCtx = oEvent.getSource().getBindingContext("invoiceModel");
+            this.getView().getModel("invoiceModel").setProperty("pairedProduct", null, oCtx);
+            this.getView().getModel("invoiceModel").setProperty("hasPairedProduct", false, oCtx);
+        },
+        unpairCatalogProduct: function(oEvent){
+            var oCtx = oEvent.getSource().getBindingContext("productsModel");
+            var aBaselinkerProducts = [...this.getView().getModel("productsModel").getProperty("/products")];
+            var aAllBaselinkerProducts = [...this.getView().getModel("productsModel").getProperty("/allProducts")];
+            aBaselinkerProducts.push(this.getView().getModel("productsModel").getProperty("pairedProduct", oCtx));
+            aAllBaselinkerProducts.push(this.getView().getModel("productsModel").getProperty("pairedProduct", oCtx));
+            this.getView().getModel("productsModel").setProperty("pairedProduct", null, oCtx);
+            this.getView().getModel("productsModel").setProperty("hasPairedProduct", false, oCtx);            
+            this.getView().getModel("productsModel").setProperty("highlight", "None", oCtx);
+            this.getView().getModel("productsModel").setProperty("/products", aBaselinkerProducts);            
+            this.getView().getModel("productsModel").setProperty("/allProducts", aAllBaselinkerProducts);
+        },
+
+        handleUploadPress: function() {
+			var oFileUploader = this.byId("fileUploader");
+			oFileUploader.checkFileReadable().then(function() {
+				oFileUploader.upload();
+			}, function(error) {
+				MessageToast.show("The file cannot be read. It may have changed.");
+			}).then(function() {
+                var oViewModel = this.getView().getModel("viewModel");
+
+                oViewModel.setProperty("/busy", true);
+				oFileUploader.clear();
+			}.bind(this));
+		}
     });
 
 });
