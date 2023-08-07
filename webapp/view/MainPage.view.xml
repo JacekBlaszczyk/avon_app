@@ -1,6 +1,4 @@
-<mvc:View
-	controllerName="Avon.controller.MainPage"
-	displayBlock="true"
+<mvc:View controllerName="Avon.controller.MainPage" displayBlock="true"
 	xmlns="sap.m"
 	xmlns:mvc="sap.ui.core.mvc"
 	xmlns:u="sap.ui.unified"
@@ -8,228 +6,211 @@
 	xmlns:layout="sap.ui.layout"
 	xmlns:dnd="sap.ui.core.dnd">
 	<Page busy="{viewModel>/busy}">
-	<customHeader>
-	<Bar>
-		<contentLeft>
-			<Title text="Zmiana katalogu" />
-		</contentLeft>
-		<contentRight>
-			<Avatar src="sap-icon://customer" class="sapUiTinyMarginEnd" />
-			<Title text="{auth>/username}" class="sapUiTinyMarginEnd" />
-		</contentRight>
-	</Bar>
-	</customHeader>
-	<content>
-		<SplitContainer
-		id="SplitContainer"
-		initialMaster="master"
-		initialDetail="all">
-			<masterPages>
-				<Page id="master">
-					<customHeader>
-					<Toolbar>
-						<Title text="Produkty z baselinkera" />
-						<ToolbarSpacer />
-					</Toolbar>
-				</customHeader>
-					<List  growing="true"  growingThreshold="50" growingScrollToLoad="true" sticky="HeaderToolbar" id="leftTable" items="{productsModel>/products}">
-					<headerToolbar>
-					<Toolbar>	
-						<SearchField liveChange="onSearch"/>
-					</Toolbar>
-					
-					</headerToolbar>
-				<items>
-					<StandardListItem icon="{productsModel>imageUrl}" wrapping="true" title="{productsModel>name}"/>
-				</items>
-				<dragDropConfig>
-					<dnd:DragInfo sourceAggregation="items"/>
-				</dragDropConfig>
-				
-			</List>
-				</Page>
-			</masterPages>
-			<detailPages>
-				<Page id="all">
-				<headerContent>
-					<Button text="Zmiana cen" press="navToPrices"/>
-					<Button text="Faktura" press="navToInvoice"/>
-				</headerContent>
-				<Table growing="true" growingThreshold="50" growingScrollToLoad="true" selectionChange="onMainTableSelectionChange" sticky="HeaderToolbar" id="rightTable" items="{productsModel>/catalogProducts}"
-					>
-					<headerToolbar>
-					<Toolbar>
-						<SearchField liveChange="onSearchCatalog" value="{viewModel>/searchQuery}"/>
-						<ToolbarSpacer />		
-						<CheckBox text="Pokaż tylko sparowane" select="onSearchCatalog" selected="{viewModel>/onlyPaired}"/>		
-						<Button press="onAddToPriceChange" type="Emphasized" text="Dodaj sparowane do zmieniania cen"/>
-						</Toolbar>
-				</headerToolbar>
-				<columns>
-					<Column width="10%" hAlign="Center"/>
-					<Column width="5%" hAlign="Center">
-						<Title text="Kod" />
-					</Column>
-					<Column width="25%" hAlign="Center">
-						<Title text="Nazwa" />
-					</Column>
-					<Column width="10%" hAlign="Center">
-						<Title text="Cena katalogowa" />
-					</Column>
-					<Column width="10%" hAlign="Center">
-						<Title text="Zniżka" />
-					</Column>
-					<Column width="10%" hAlign="Center">
-						<Title text="Cena zakupu" />
-					</Column>
-					<Column width="20%" hAlign="Center">
-						<Title text="Promocja" />
-					</Column>
-					<Column width="10%" hAlign="Center"/>
-				</columns>
-				<items>
-					<ColumnListItem  highlight="{productsModel>highlight}">
-						<cells>
-							<Image src="{productsModel>imageUrl}" height="70px" width="70px"/>
-							<Text text="{productsModel>sku}" />
-							<VBox>
-								<Title text="{productsModel>name}" />
-								<Text text="{productsModel>pairedProduct/name}" />								
-							</VBox>
-							
-							<Input value="{productsModel>price}" change="onPriceOrDiscountChange" valueStateText="Błędna cena" valueState="{productsModel>priceState}"/>
-							<Select items="{viewModel>/discounts}" change="onPriceOrDiscountChange" selectedKey="{productsModel>discount}">
-								<core:Item key="{viewModel>key}" text="{viewModel>value}" />
-							</Select>
-							<Text text="{productsModel>finalPrice}" />
-							<Text text="{productsModel>promotion}" />							
-							<Button visible="{productsModel>hasPairedProduct}" type="Reject" press="unpairCatalogProduct" icon="sap-icon://decline" tooltip="Usuń sparowany produkt"/>
-						</cells>
-					</ColumnListItem>
-				</items>
-				<dragDropConfig>
-						<dnd:DropInfo dropEffect="Move" drop="onPairProduct" targetAggregation="items" dropPosition="On" dropLayout="Vertical"/>
-					</dragDropConfig>
-			</Table>
-				</Page>
-				<Page id="invoice" title="Faktura">
-				<headerContent>
-					<Button text="Zmiana cen" press="navToPrices"/>
-					<Button text="Wszystkie produkty" press="navToProducts"/>
-				</headerContent>
-				<Table growing="true" growingThreshold="50" growingScrollToLoad="true" selectionChange="onInvoiceTableSelectionChange" sticky="HeaderToolbar" id="invoiceTable" items="{invoiceModel>/products}"
-					>
-					<headerToolbar>
-					<Toolbar>
-						<u:FileUploader
-			id="fileUploader"
-			name="invoice"
-			multiple="true"
-			fileType="pdf"
-			uploadUrl="/route_to_invoicesrv/invoice"
-			tooltip="Dodaj fakturę z avonu"
-			uploadComplete="handleUploadComplete"/>
-		<Button
-			text="Załaduj faktury"
-			press="handleUploadPress"/>
-			<Input value="{invoiceModel>/orderNr}" />
-			<Button
-			text="Dodaj sparowane produkty do zamówienia"
-			press="addPairedProductsToOrder"
-			type="Emphasized"/>
-			</Toolbar>
-				</headerToolbar>
-				<columns>
-					<Column width="10%" hAlign="Center"/>
-					<Column width="5%" hAlign="Center">
-						<Title text="Kod" />
-					</Column>
-					<Column width="55%" hAlign="Center">
-						<Title text="Nazwa" />
-					</Column>
-					<Column width="10%" hAlign="Center">
-						<Title text="Cena" />
-					</Column>
-					<Column width="10%" hAlign="Center">
-						<Title text="Ilość" />
-					</Column>
-					<Column width="10%" hAlign="Center"/>					
-				</columns>
-				<items>
-					<ColumnListItem  highlight="{invoiceModel>highlight}">
-						<cells>
-							<Image src="{invoiceModel>pairedProduct/imageUrl}" height="70px" width="70px"/>
-							<Text text="{invoiceModel>sku}" />
-							<Text text="{invoiceModel>name}" />
-							<Input value="{invoiceModel>unitPrice}" />
-							<Input value="{invoiceModel>amount}" />
-							<Button visible="{invoiceModel>hasPairedProduct}" type="Reject" press="unpairProduct" icon="sap-icon://decline" tooltip="Usuń sparowany produkt"/>
-						</cells>
-					</ColumnListItem>
-				</items>
-				<dragDropConfig>
-						<dnd:DropInfo dropEffect="Move" drop="onPairInvoiceProduct" targetAggregation="items" dropPosition="On" dropLayout="Vertical"/>
-					</dragDropConfig>
-			</Table>
-				</Page>
-				<Page id="prices">
-				<headerContent>
-					<Button text="Wszystkie produkty" press="navToProducts"/>
-					<Button text="Faktura" press="navToInvoice"/>
-				</headerContent>
-				<Table id="changeTable" sticky="HeaderToolbar" mode="MultiSelect" growing="true" growingThreshold="1000" items="{productsModel>/changePriceProducts}"
-					selectionChange="onChangePriceTableSelectionChange" >
-					<headerToolbar>
-					<Toolbar>
-						<ToolbarSpacer />
-						<CheckBox text="Zmień SKU" selected="{viewModel>/changeSku}" />
-						<Label text="Prowizja (%)" />
-						<Input type="Number" value="{viewModel>/brokeragePercent}" />
-						<Label text="Marża" />
-						<Input type="Number" value="{viewModel>/margin}" />
-						<Switch state="{viewModel>/percentage}" customTextOn="%" customTextOff="Zł" />							
-						<Button type="Emphasized" text="Wylicz ceny" press="countPrices"  enabled="{viewModel>/changePriceEnabled}"/>
-						<Button type="Accept" text="Zmień ceny w baselinkerze" press="onChangeBaselinkerPrices"  enabled="{viewModel>/changePriceEnabled}"/>
-					</Toolbar>
-				</headerToolbar>
-				<columns>
-					<Column width="20%" />
-					<Column width="30%">
-						<Title text="Nazwa" />
-					</Column>
-					<Column>
-						<Title text="Aktualne SKU" />
-					</Column>
-					<Column>
-						<Title text="Nowe SKU" />
-					</Column>
-					<Column>
-						<Title text="Cena" />
-					</Column>
-					<Column>
-						<Title text="Cena zakupu" />
-					</Column>
-					<Column>
-						<Title text="Nowa cena" />
-					</Column>
-				</columns>
-				<items>
-					<ColumnListItem>
-						<cells>
-							<Image src="{productsModel>imageUrl}" height="150px" width="150px"/>
-							<Text text="{productsModel>name}" />
-							<Text text="{productsModel>sku}" />
-							<Text text="{productsModel>catalogSku}" />							
-							<Text text="{productsModel>price}" />
-							<Input type="Number" value="{productsModel>boughtPrice}" />
-							<Input type="Number" value="{productsModel>newPrice}" />
-						</cells>
-					</ColumnListItem>
-				</items>
-			</Table>	
-				</Page>
-			</detailPages>
-		</SplitContainer>
+		<customHeader>
+			<Bar>
+				<contentLeft>
+					<Title text="Zmiana katalogu" />
+				</contentLeft>
+				<contentRight>
+					<Avatar src="sap-icon://customer" class="sapUiTinyMarginEnd" />
+					<Title text="{auth>/username}" class="sapUiTinyMarginEnd" />
+				</contentRight>
+			</Bar>
+		</customHeader>
+		<content>
+			<SplitContainer id="SplitContainer" initialMaster="master" initialDetail="all">
+				<masterPages>
+					<Page id="master">
+						<customHeader>
+							<Toolbar>
+								<Title text="Produkty z baselinkera" />
+								<ToolbarSpacer />
+							</Toolbar>
+						</customHeader>
+						<List growing="true" growingThreshold="50" growingScrollToLoad="true" sticky="HeaderToolbar" id="leftTable" items="{productsModel>/products}">
+							<headerToolbar>
+								<Toolbar>
+									<SearchField liveChange="onSearch"/>
+								</Toolbar>
+
+							</headerToolbar>
+							<items>
+								<StandardListItem icon="{productsModel>imageUrl}" wrapping="true" title="{productsModel>name}"/>
+							</items>
+							<dragDropConfig>
+								<dnd:DragInfo sourceAggregation="items"/>
+							</dragDropConfig>
+
+						</List>
+					</Page>
+				</masterPages>
+				<detailPages>
+					<Page id="all">
+						<headerContent>
+							<Button text="Zmiana cen" press="navToPrices"/>
+							<Button text="Faktura" press="navToInvoice"/>
+						</headerContent>
+						<Table growing="true" growingThreshold="50" growingScrollToLoad="true" selectionChange="onMainTableSelectionChange" sticky="HeaderToolbar" id="rightTable" items="{productsModel>/catalogProducts}">
+							<headerToolbar>
+								<Toolbar>
+									<SearchField liveChange="onSearchCatalog" value="{viewModel>/searchQuery}"/>
+									<ToolbarSpacer />
+									<CheckBox text="Pokaż tylko sparowane" select="onSearchCatalog" selected="{viewModel>/onlyPaired}"/>
+									<Button press="onAddToPriceChange" type="Emphasized" text="Dodaj sparowane do zmieniania cen"/>
+								</Toolbar>
+							</headerToolbar>
+							<columns>
+								<Column width="10%" hAlign="Center"/>
+								<Column width="5%" hAlign="Center">
+									<Title text="Kod" />
+								</Column>
+								<Column width="25%" hAlign="Center">
+									<Title text="Nazwa" />
+								</Column>
+								<Column width="10%" hAlign="Center">
+									<Title text="Cena katalogowa" />
+								</Column>
+								<Column width="10%" hAlign="Center">
+									<Title text="Zniżka" />
+								</Column>
+								<Column width="10%" hAlign="Center">
+									<Title text="Cena zakupu" />
+								</Column>
+								<Column width="20%" hAlign="Center">
+									<Title text="Promocja" />
+								</Column>
+								<Column width="10%" hAlign="Center"/>
+							</columns>
+							<items>
+								<ColumnListItem highlight="{productsModel>highlight}">
+									<cells>
+										<Image src="{productsModel>imageUrl}" height="70px" width="70px"/>
+										<Text text="{productsModel>sku}" />
+										<VBox>
+											<Title text="{productsModel>name}" />
+											<Text text="{productsModel>pairedProduct/name}" />
+										</VBox>
+
+										<Input value="{productsModel>price}" change="onPriceOrDiscountChange" valueStateText="Błędna cena" valueState="{productsModel>priceState}"/>
+										<Select items="{viewModel>/discounts}" change="onPriceOrDiscountChange" selectedKey="{productsModel>discount}">
+											<core:Item key="{viewModel>key}" text="{viewModel>value}" />
+										</Select>
+										<Text text="{productsModel>finalPrice}" />
+										<Text text="{productsModel>promotion}" />
+										<Button visible="{productsModel>hasPairedProduct}" type="Reject" press="unpairCatalogProduct" icon="sap-icon://decline" tooltip="Usuń sparowany produkt"/>
+									</cells>
+								</ColumnListItem>
+							</items>
+							<dragDropConfig>
+								<dnd:DropInfo dropEffect="Move" drop="onPairProduct" targetAggregation="items" dropPosition="On" dropLayout="Vertical"/>
+							</dragDropConfig>
+						</Table>
+					</Page>
+					<Page id="invoice" title="Faktura">
+						<headerContent>
+							<Button text="Zmiana cen" press="navToPrices"/>
+							<Button text="Wszystkie produkty" press="navToProducts"/>
+						</headerContent>
+						<Table growing="true" growingThreshold="50" growingScrollToLoad="true" selectionChange="onInvoiceTableSelectionChange" sticky="HeaderToolbar" id="invoiceTable" items="{invoiceModel>/products}">
+							<headerToolbar>
+								<Toolbar>
+									<u:FileUploader id="fileUploader" name="invoice" multiple="true" fileType="pdf" uploadUrl="/route_to_invoicesrv/invoice" tooltip="Dodaj fakturę z avonu" uploadComplete="handleUploadComplete"/>
+									<Button text="Załaduj faktury" press="handleUploadPress"/>
+									<Input value="{invoiceModel>/orderNr}" />
+									<Button text="Dodaj sparowane produkty do zamówienia" press="addPairedProductsToOrder" type="Emphasized"/>
+								</Toolbar>
+							</headerToolbar>
+							<columns>
+								<Column width="10%" hAlign="Center"/>
+								<Column width="5%" hAlign="Center">
+									<Title text="Kod" />
+								</Column>
+								<Column width="55%" hAlign="Center">
+									<Title text="Nazwa" />
+								</Column>
+								<Column width="10%" hAlign="Center">
+									<Title text="Cena" />
+								</Column>
+								<Column width="10%" hAlign="Center">
+									<Title text="Ilość" />
+								</Column>
+								<Column width="10%" hAlign="Center"/>
+							</columns>
+							<items>
+								<ColumnListItem highlight="{invoiceModel>highlight}">
+									<cells>
+										<Image src="{invoiceModel>pairedProduct/imageUrl}" height="70px" width="70px"/>
+										<Text text="{invoiceModel>sku}" />
+										<Text text="{invoiceModel>name}" />
+										<Input value="{invoiceModel>unitPrice}" />
+										<Input value="{invoiceModel>amount}" />
+										<Button visible="{invoiceModel>hasPairedProduct}" type="Reject" press="unpairProduct" icon="sap-icon://decline" tooltip="Usuń sparowany produkt"/>
+									</cells>
+								</ColumnListItem>
+							</items>
+							<dragDropConfig>
+								<dnd:DropInfo dropEffect="Move" drop="onPairInvoiceProduct" targetAggregation="items" dropPosition="On" dropLayout="Vertical"/>
+							</dragDropConfig>
+						</Table>
+					</Page>
+					<Page id="prices">
+						<headerContent>
+							<Button text="Wszystkie produkty" press="navToProducts"/>
+							<Button text="Faktura" press="navToInvoice"/>
+						</headerContent>
+						<Table id="changeTable" sticky="HeaderToolbar" mode="MultiSelect" growing="true" growingThreshold="1000" items="{productsModel>/changePriceProducts}" selectionChange="onChangePriceTableSelectionChange">
+							<headerToolbar>
+								<Toolbar>
+									<ToolbarSpacer />
+									<CheckBox text="Zmień SKU" selected="{viewModel>/changeSku}" />
+									<Label text="Prowizja (%)" />
+									<Input type="Number" value="{viewModel>/brokeragePercent}" />
+									<Label text="Marża" />
+									<Input type="Number" value="{viewModel>/margin}" />
+									<Switch state="{viewModel>/percentage}" customTextOn="%" customTextOff="Zł" />
+									<Button type="Emphasized" text="Wylicz ceny" press="countPrices" enabled="{viewModel>/changePriceEnabled}"/>
+									<Button type="Accept" text="Zmień ceny w baselinkerze" press="onChangeBaselinkerPrices" enabled="{viewModel>/changePriceEnabled}"/>
+									<Button type="Accept" text="Zmień ceny w górę" press="onChangeUpBaselinkerPrices" enabled="{viewModel>/changePriceEnabled}"/>
+								</Toolbar>
+							</headerToolbar>
+							<columns>
+								<Column width="20%" />
+								<Column width="30%">
+									<Title text="Nazwa" />
+								</Column>
+								<Column>
+									<Title text="Aktualne SKU" />
+								</Column>
+								<Column>
+									<Title text="Nowe SKU" />
+								</Column>
+								<Column>
+									<Title text="Cena" />
+								</Column>
+								<Column>
+									<Title text="Cena zakupu" />
+								</Column>
+								<Column>
+									<Title text="Nowa cena"/>
+								</Column>
+							</columns>
+							<items>
+								<ColumnListItem>
+									<cells>
+										<Image src="{productsModel>imageUrl}" height="150px" width="150px"/>
+										<Text text="{productsModel>name}" />
+										<Text text="{productsModel>sku}" />
+										<Text text="{productsModel>catalogSku}" />
+										<Text text="{productsModel>price}" />
+										<Input type="Number" value="{productsModel>boughtPrice}" />
+										<Input type="Number" value="{productsModel>newPrice}" valueState="{productsModel>priceState}"/>
+									</cells>
+								</ColumnListItem>
+							</items>
+						</Table>
+					</Page>
+				</detailPages>
+			</SplitContainer>
 		</content>
-		</Page>
+	</Page>
 </mvc:View>

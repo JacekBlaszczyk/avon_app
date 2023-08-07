@@ -60,7 +60,7 @@ sap.ui.define([
                                             oModel.setProperty("/productsCount", oData.value.length);
                                             oViewModel.setProperty("/busy", true);
                                             $.get({
-                                                url: `/route_to_prodsrv/catalogue/2?userId=${userId}`,
+                                                url: `/route_to_prodsrv/catalogue/7?userId=${userId}`,
                                                 success: function(oData) {
                                                     var aBaselinkerProducts = [...oModel.getProperty("/allProducts")]
                                                     var aProducts = oData.products.map(el => {
@@ -197,6 +197,7 @@ sap.ui.define([
                                     tempPrice = percentage ? parseFloat(product.boughtPrice) * (1 + margin / 100) : parseFloat(product.boughtPrice) + margin,
                                     newPrice = Math.ceil(10 * (tempPrice / (1 - brokeragePercent / 100))) / 10;
                                 product.newPrice = newPrice;
+                                product.priceState = newPrice > product.price ? "Error" : newPrice < product.price ? "Success" : "Warning";
                                 oModel.setProperty(path, product);
                             })
                         },
@@ -274,6 +275,40 @@ sap.ui.define([
                         navToInvoice: function() {
                             this.getView().byId("SplitContainer").to(this.createId("invoice"));
                         },
+                        onChangeUpBaselinkerPrices: function() {
+                                var selectedProducts = this.getView().byId("changeTable").getSelectedItems()
+                                    .filter(el => el.getBindingContext("productsModel").getProperty("priceState") === "Error")
+                                    .map(el => {
+                                        return { _id: el.getBindingContext("productsModel").getObject()._id, price: el.getBindingContext("productsModel").getObject().newPrice, catalogSku: el.getBindingContext("productsModel").getObject().catalogSku }
+                                    }).filter(el => el.price > 0),
+                                    oViewModel = this.getView().getModel("viewModel"),
+                                    bChangeSku = oViewModel.getProperty("/changeSku"),
+                                    oAuthModel = this.getView().getModel("auth"),
+                                    userId = oAuthModel.getProperty("/userId");
+                                oViewModel.setProperty("/busy", true);
+                                $.post({
+                                            url: `/route_to_prodsrv/prices?userId=${userId}&changeSku=${bChangeSku}`,
+                                            data: JSON.stringify(selectedProducts),
+                                            dataType: "text",
+                                            success: function(oData) {
+                                                    oViewModel.setProperty("/busy", false);
+                                                    var countSuccessPrice = JSON.parse(oData).countSuccessPrice;
+                                                    var countErrorPrice = JSON.parse(oData).countErrorPrice;
+                                                    var countSuccessSku = JSON.parse(oData).countSuccessSku;
+                                                    var countErrorSku = JSON.parse(oData).countErrorSku;
+                                                    var aProducts = [...this.getView().getModel("productsModel").getProperty("/changePriceProducts")];
+                                                    selectedProducts.forEach(product => {
+                                                        aProducts.splice(aProducts.findIndex(el => el._id === product._id), 1);
+                                                    })
+                                                    MessageBox.success(`Pomyślnie zmieniono ceny w ${countSuccessPrice} produktach. ${countErrorPrice} błędów. ${countSuccessSku? `Zmieniono SKU w ${countSuccessSku} produktach.` : ""} ${countSuccessSku && countErrorSku? `${countErrorSku} błędów.` : ""}`);
+                this.getView().getModel("productsModel").setProperty("/changePriceProducts", aProducts);
+            }.bind(this),
+            error: function(oError) {
+                oViewModel.setProperty("/busy", false);
+                MessageBox.error(JSON.parse(oError.responseText).error);
+            }
+        });
+    },
                         onChangeBaselinkerPrices: function() {
                                 var selectedProducts = this.getView().byId("changeTable").getSelectedItems().map(el => {
                                         return { _id: el.getBindingContext("productsModel").getObject()._id, price: el.getBindingContext("productsModel").getObject().newPrice, catalogSku: el.getBindingContext("productsModel").getObject().catalogSku }
@@ -314,16 +349,21 @@ sap.ui.define([
                 if(orderNr){
             oViewModel.setProperty("/busy", true);
             aProducts.forEach(product => {
-                if(product.hasPairedProduct){
-                    selectedProducts.push({
-                        id: product.pairedProduct._id,
-                        name: product.pairedProduct.name,
-                        amount: product.amount,
-                        price: product.unitPrice
-                    });
-                } else {
-                    notSelectedProducts.push(product);
-                }
+                selectedProducts.push({
+                            name: product.name,
+                            amount: product.amount,
+                            price: product.unitPrice
+                        });
+                // if(product.hasPairedProduct){
+                //     selectedProducts.push({
+                //         id: product.pairedProduct._id,
+                //         name: product.pairedProduct.name,
+                //         amount: product.amount,
+                //         price: product.unitPrice
+                //     });
+                // } else {
+                //     notSelectedProducts.push(product);
+                // }
             })
             $.post({
                         url: `/route_to_prodsrv/invoice?userId=${userId}&orderNr=${orderNr}`,

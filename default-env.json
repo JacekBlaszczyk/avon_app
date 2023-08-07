@@ -1,11 +1,12 @@
 {
-    "destinations": [{
-            "name": "env_destination_prodsrv",
-            "url": "https://avon-price-app.herokuapp.com"
-        },
-        {
-            "name": "env_invoice_prodsrv",
-            "url": "http://127.0.0.79:8081"
-        }
-    ]
+  "destinations": [
+    {
+      "name": "env_destination_prodsrv",
+      "url": "https://avonapi.onrender.com"
+    },
+    {
+      "name": "env_invoice_prodsrv",
+      "url": "https://invoiceapi.onrender.com"
+    }
+  ]
 }
