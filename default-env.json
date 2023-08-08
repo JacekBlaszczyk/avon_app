@@ -2,7 +2,7 @@
   "destinations": [
     {
       "name": "env_destination_prodsrv",
-      "url": "http://localhost:1337"
+      "url": "https://avonapi.onrender.com"
     },
     {
       "name": "env_invoice_prodsrv",
