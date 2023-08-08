@@ -9,7 +9,7 @@
 		<customHeader>
 			<Bar>
 				<contentLeft>
-					<Title text="Zmiana katalogu" />
+					<Title text="Refakturowanie" />
 				</contentLeft>
 				<contentRight>
 					<Avatar src="sap-icon://customer" class="sapUiTinyMarginEnd" />
@@ -18,7 +18,7 @@
 			</Bar>
 		</customHeader>
 		<content>
-			<SplitContainer id="SplitContainer" initialMaster="master" initialDetail="all">
+			<!-- <SplitContainer id="SplitContainer" initialMaster="master" initialDetail="all">
 				<masterPages>
 					<Page id="master">
 						<customHeader>
@@ -43,9 +43,9 @@
 
 						</List>
 					</Page>
-				</masterPages>
-				<detailPages>
-					<Page id="all">
+				</masterPages> -->
+				<!-- <detailPages> -->
+					<!-- <Page id="all">
 						<headerContent>
 							<Button text="Zmiana cen" press="navToPrices"/>
 							<Button text="Faktura" press="navToInvoice"/>
@@ -105,27 +105,25 @@
 								<dnd:DropInfo dropEffect="Move" drop="onPairProduct" targetAggregation="items" dropPosition="On" dropLayout="Vertical"/>
 							</dragDropConfig>
 						</Table>
-					</Page>
+					</Page> -->
 					<Page id="invoice" title="Faktura">
-						<headerContent>
-							<Button text="Zmiana cen" press="navToPrices"/>
-							<Button text="Wszystkie produkty" press="navToProducts"/>
-						</headerContent>
 						<Table growing="true" growingThreshold="50" growingScrollToLoad="true" selectionChange="onInvoiceTableSelectionChange" sticky="HeaderToolbar" id="invoiceTable" items="{invoiceModel>/products}">
 							<headerToolbar>
 								<Toolbar>
 									<u:FileUploader id="fileUploader" name="invoice" multiple="true" fileType="pdf" uploadUrl="/route_to_invoicesrv/invoice" tooltip="Dodaj fakturę z avonu" uploadComplete="handleUploadComplete"/>
 									<Button text="Załaduj faktury" press="handleUploadPress"/>
+									<Label text="Nr FV" />
 									<Input value="{invoiceModel>/orderNr}" />
-									<Button text="Dodaj sparowane produkty do zamówienia" press="addPairedProductsToOrder" type="Emphasized"/>
+									<Button text="Dodaj do istniejącej faktury" press="addPairedProductsToOrder" type="Emphasized"/>
+									<Button text="Utwórz nową fakturę z tych produktów" press="openCustomerDialog" type="Accept"/>
 								</Toolbar>
 							</headerToolbar>
 							<columns>
-								<Column width="10%" hAlign="Center"/>
+								<!-- <Column width="10%" hAlign="Center"/>
 								<Column width="5%" hAlign="Center">
 									<Title text="Kod" />
-								</Column>
-								<Column width="55%" hAlign="Center">
+								</Column> -->
+								<Column width="80%" hAlign="Center">
 									<Title text="Nazwa" />
 								</Column>
 								<Column width="10%" hAlign="Center">
@@ -134,26 +132,26 @@
 								<Column width="10%" hAlign="Center">
 									<Title text="Ilość" />
 								</Column>
-								<Column width="10%" hAlign="Center"/>
+								<!-- <Column width="10%" hAlign="Center"/> -->
 							</columns>
 							<items>
 								<ColumnListItem highlight="{invoiceModel>highlight}">
 									<cells>
-										<Image src="{invoiceModel>pairedProduct/imageUrl}" height="70px" width="70px"/>
-										<Text text="{invoiceModel>sku}" />
+										<!-- <Image src="{invoiceModel>pairedProduct/imageUrl}" height="70px" width="70px"/>
+										<Text text="{invoiceModel>sku}" /> -->
 										<Text text="{invoiceModel>name}" />
 										<Input value="{invoiceModel>unitPrice}" />
 										<Input value="{invoiceModel>amount}" />
-										<Button visible="{invoiceModel>hasPairedProduct}" type="Reject" press="unpairProduct" icon="sap-icon://decline" tooltip="Usuń sparowany produkt"/>
+										<!-- <Button visible="{invoiceModel>hasPairedProduct}" type="Reject" press="unpairProduct" icon="sap-icon://decline" tooltip="Usuń sparowany produkt"/> -->
 									</cells>
 								</ColumnListItem>
 							</items>
-							<dragDropConfig>
+							<!-- <dragDropConfig>
 								<dnd:DropInfo dropEffect="Move" drop="onPairInvoiceProduct" targetAggregation="items" dropPosition="On" dropLayout="Vertical"/>
-							</dragDropConfig>
+							</dragDropConfig> -->
 						</Table>
 					</Page>
-					<Page id="prices">
+					<!-- <Page id="prices">
 						<headerContent>
 							<Button text="Wszystkie produkty" press="navToProducts"/>
 							<Button text="Faktura" press="navToInvoice"/>
@@ -208,9 +206,9 @@
 								</ColumnListItem>
 							</items>
 						</Table>
-					</Page>
-				</detailPages>
-			</SplitContainer>
+					</Page> -->
+				<!-- </detailPages>
+			</SplitContainer> -->
 		</content>
 	</Page>
 </mvc:View>

@@ -1,0 +1,29 @@
+<core:FragmentDefinition xmlns="sap.m" xmlns:core="sap.ui.core" xmlns:f="sap.ui.layout.form">
+	<Dialog title="Dane klienta" stretch="false" resizable="false" horizontalScrolling="false" verticalScrolling="true" draggable="false"
+		contentWidth="1000px" >
+        <f:SimpleForm editable="true" minWidth="1024" maxContainerCols="2" emptySpanL="0" emptySpanM="0" columnsL="2" columnsM="2"
+						class="editableForm" layout="ResponsiveGridLayout">
+						<f:content>
+							<Label text="Data wystawienia" required="true"/>
+							<DatePicker dateValue="{customerModel>/date}"/>
+							<Label text="NIP" required="true"/>
+							<Input value="{customerModel>/nip}" />
+							<Label text="Nazwa firmy" required="true"/>
+							<Input value="{customerModel>/companyName}"/>
+							<Label text="Ulica i nr"/>
+							<Input value="{customerModel>/street}" />
+							<Label text="Kod pocztowy"/>
+							<Input value="{customerModel>/postalCode}" />
+							<Label text="Miasto"/>
+							<Input value="{customerModel>/city}" />
+						</f:content>	
+					</f:SimpleForm>
+					<beginButton>
+						<Button type="Reject" text="Zamknij" press="onCloseDialogCustomer"/>
+					</beginButton>
+					<endButton>
+					
+						<Button type="Accept" text="Utwórz fakturę" press="onCreateNewInvoice"/>
+					</endButton>
+	</Dialog>
+</core:FragmentDefinition>

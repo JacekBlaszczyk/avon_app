@@ -29,24 +29,34 @@
 				<Input value="{loginModel>/username}" liveChange="checkRegisterAvailable"/>
 				<Label text="Hasło" />
 				<Input type="Password" value="{loginModel>/password}" change="checkRegisterAvailable"/>
-				<Label text="Baselinker Token" visible="{viewModel>/registerMode}"/>
-				<Input liveChange="onTokenChange" showValueStateMessage="true" value="{loginModel>/token}" visible="{viewModel>/registerMode}" valueState="{viewModel>/tokenState}" valueStateText="{viewModel>/tokenStateText}">
+				<Label text="Domena w Fakturowni" visible="{viewModel>/registerMode}"/>
+				<Input liveChange="onDomainChange" showValueStateMessage="true" value="{loginModel>/domain}" visible="{viewModel>/registerMode}" valueState="{viewModel>/domainState}" valueStateText="{viewModel>/domainStateText}"
+				placeholder="To co przed '.' w adresie">
 				<layoutData>
-						<l:GridData span="XL8 L8 M8 S8"/>
+						<l:GridData span="XL7 L7 M7 S7"/>
 				</layoutData>
 				</Input>
+				<Button icon="sap-icon://question-mark" type="Emphasized" press="onShowHelpDomain" visible="{viewModel>/registerMode}">
+				<layoutData>
+						<l:GridData span="XL1 L1 M1 S1"/>
+				</layoutData>
+				</Button>
+				<Label text="Token do Fakturowni" visible="{viewModel>/registerMode}"/>
+				<Input liveChange="onTokenChange" showValueStateMessage="true" value="{loginModel>/token}" visible="{viewModel>/registerMode}" valueState="{viewModel>/tokenState}" valueStateText="{viewModel>/tokenStateText}">
+				<layoutData>
+						<l:GridData span="XL7 L7 M7 S7"/>
+				</layoutData>
+				</Input>
+				<Button icon="sap-icon://question-mark" type="Emphasized" press="onShowHelp" visible="{viewModel>/registerMode}">
+				<layoutData>
+						<l:GridData span="XL1 L1 M1 S1"/>
+				</layoutData>
+				</Button>
 				<Button icon="sap-icon://validate" type="Accept" press="onCheckToken" visible="{viewModel>/registerMode}">
 				<layoutData>
 						<l:GridData span="XL1 L1 M1 S1"/>
 				</layoutData>
 				</Button>
-				<Label visible="{viewModel>/registerMode}" text="Przysługująca zniżka" />
-				<Switch state="{viewModel>/fullDiscount}" customTextOn="40%" customTextOff="35%" visible="{viewModel>/registerMode}">
-				<layoutData>
-					<l:GridData indent="XL3 L3 M3 S3"  linebreak="true"  />
-				</layoutData>
-				</Switch>
-				
 				<Button text="Zaloguj się" press="onLogin" visible="{= !${viewModel>/registerMode} }">
 				<layoutData>
 						<l:GridData indent="XL3 L3 M3 S3"  linebreak="true"  />

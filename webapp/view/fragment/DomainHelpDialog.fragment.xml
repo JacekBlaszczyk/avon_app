@@ -1,0 +1,9 @@
+<core:FragmentDefinition xmlns="sap.m" xmlns:core="sap.ui.core" xmlns:f="sap.ui.layout.form">
+	<Dialog title="Skąd wziąć domenę?" stretch="false" resizable="false" horizontalScrolling="false" verticalScrolling="true" draggable="false"
+		contentWidth="1000px" >
+        <Image src="./images/help5.jpg" width="450px" class="sapUiSmallMargin"/>
+		<beginButton>
+			<Button text="Zamknij" press="onCloseDialogDomainHelp"/>
+		</beginButton>
+	</Dialog>
+</core:FragmentDefinition>

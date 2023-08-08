@@ -48,19 +48,19 @@ sap.ui.define([
             var oModel = this.getView().getModel("loginModel");
             var oViewModel = this.getView().getModel("viewModel");
             var token = oModel.getProperty("/token");
+            var domain = oModel.getProperty("/domain");
             $.post({
                 url: "/route_to_prodsrv/check",
-                data: JSON.stringify({ token }),
+                data: JSON.stringify({ token, domain }),
                 dataType: "text",
                 success: function(oData) {
                     var success = JSON.parse(oData).success;
-                    if (success) {
-                        oModel.setProperty("/inventoryId", JSON.parse(oData).inventoryId);
-                        oModel.setProperty("/priceGroupId", JSON.parse(oData).priceGroupId);
-                    }
                     oViewModel.setProperty("/tokenState", success ? "Success" : "Error");
 
                     oViewModel.setProperty("/tokenStateText", success ? "Poprawny token" : "Niepoprawny token");
+                    oViewModel.setProperty("/domainState", success ? "Success" : "Error");
+
+                    oViewModel.setProperty("/domainStateText", success ? "Poprawna domena" : "Niepoprawna domena");
                     this.checkRegisterAvailable();
                 }.bind(this),
                 error: function(oError) {
@@ -82,19 +82,47 @@ sap.ui.define([
         checkRegisterAvailable: function() {
             var oModel = this.getView().getModel("viewModel");
             var oLoginModel = this.getView().getModel("loginModel");
-            oModel.setProperty("/registerAvailable", oModel.getProperty("/tokenState") === "Success" && !!oLoginModel.getProperty("/username") && !!oLoginModel.getProperty("/password"));
+            oModel.setProperty("/registerAvailable", oModel.getProperty("/domainState") === "Success" && oModel.getProperty("/tokenState") === "Success" && !!oLoginModel.getProperty("/username") && !!oLoginModel.getProperty("/password"));
         },
         onTokenChange: function() {
             var oModel = this.getView().getModel("viewModel");
             oModel.setProperty("/registerAvailable", false);
             oModel.setProperty("/tokenState", "None");
         },
+        onShowHelp: function() {
+            if (!this._oHelpDialog) {
+                // create dialog via fragment factory
+                this._oHelpDialog = sap.ui.xmlfragment("Avon.view.fragment.TokenHelpDialog", this);
+                // connect dialog to view (models, lifecycle)
+                this.getView().addDependent(this._oHelpDialog);
+    
+            }
+    
+            this._oHelpDialog.open();
+        },  
+        onShowHelpDomain : function() {
+            if (!this._oHelpDomainDialog) {
+                // create dialog via fragment factory
+                this._oHelpDomainDialog = sap.ui.xmlfragment("Avon.view.fragment.DomainHelpDialog", this);
+                // connect dialog to view (models, lifecycle)
+                this.getView().addDependent(this._oHelpDomainDialog);
+    
+            }
+    
+            this._oHelpDomainDialog.open();
+        }, 
+        onCloseDialogHelp: function(){
+            this._oHelpDialog.close();
+        },  
+        onCloseDialogDomainHelp: function(){
+            this._oHelpDomainDialog.close();
+        },   
         onRegister: function() {
             var oLoginModel = this.getView().getModel("loginModel");
             var fullDiscount = this.getView().getModel("viewModel").getProperty("/fullDiscount");
             $.post({
                 url: "/route_to_prodsrv/register",
-                data: JSON.stringify({...oLoginModel.getProperty("/"), discount: fullDiscount ? 40 : 35 }),
+                data: JSON.stringify(oLoginModel.getProperty("/")),
                 dataType: "text",
                 success: function(oData) {
                     var oAuthModel = this.getView().getModel("auth");
