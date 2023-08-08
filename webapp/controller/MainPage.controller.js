@@ -331,7 +331,7 @@ sap.ui.define([
                                 oViewModel.setProperty("/busy", false);
                                 var invoiceNr = JSON.parse(oData).invoiceNr;
                                 MessageBox.success(`Dodano produkty do faktury nr ${invoiceNr}`);
-                                oInvoiceModel.setProperty("/products", notSelectedProducts);
+                                oInvoiceModel.setProperty("/products", []);
             }.bind(this),
             error: function(oError) {
             oViewModel.setProperty("/busy", false);
@@ -572,7 +572,7 @@ sap.ui.define([
                                 var invoiceNr = JSON.parse(oData).invoiceNr;
                                 MessageBox.success(`Utworzono fakturę z nr ${invoiceNr}`);
                                 this._oCustomerDialog.close();
-                                oInvoiceModel.setProperty("/products", notSelectedProducts);
+                                oInvoiceModel.setProperty("/products", []);
             }.bind(this),
             error: function(oError) {
             oViewModel.setProperty("/busy", false);
