@@ -107,7 +107,7 @@
 						</Table>
 					</Page> -->
 					<Page id="invoice" title="Faktura">
-						<Table growing="true" growingThreshold="50" growingScrollToLoad="true" selectionChange="onInvoiceTableSelectionChange" sticky="HeaderToolbar" id="invoiceTable" items="{invoiceModel>/products}">
+						<Table growing="true" mode="MultiSelect" growingThreshold="50" growingScrollToLoad="true" selectionChange="onInvoiceTableSelectionChange" sticky="HeaderToolbar" id="invoiceTable" items="{invoiceModel>/products}">
 							<headerToolbar>
 								<Toolbar>
 									<u:FileUploader id="fileUploader" name="invoice" multiple="true" fileType="pdf" uploadUrl="/route_to_invoicesrv/invoice" tooltip="Dodaj fakturę z avonu" uploadComplete="handleUploadComplete"/>

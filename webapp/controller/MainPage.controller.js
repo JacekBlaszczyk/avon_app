@@ -305,7 +305,9 @@ sap.ui.define([
             notSelectedProducts = [],
             oViewModel = this.getView().getModel("viewModel"),
                 oInvoiceModel = this.getView().getModel("invoiceModel"),
-                aProducts = oInvoiceModel.getProperty("/products"),
+                aProducts = this.getView().byId("invoiceTable").getSelectedItems().map(el => {
+                    return el.getBindingContext("invoiceModel").getObject()
+                }),
                 oAuthModel = this.getView().getModel("auth"),
                 userId = oAuthModel.getProperty("/userId"),
                 orderNr = oInvoiceModel.getProperty("/orderNr");
@@ -335,10 +337,8 @@ sap.ui.define([
                         dataType: "text",
                         success: function(oData) {
                                 oViewModel.setProperty("/busy", false);
-                                var countSuccessPrice = JSON.parse(oData).countSuccessPrice;
-                                var countErrorPrice = JSON.parse(oData).countErrorPrice;
-                                MessageBox.success(`Pomyślnie dodano ${countSuccessPrice} produktów do zamówienia. ${countErrorPrice} błędów.`);
-            
+                                var invoiceNr = JSON.parse(oData).invoiceNr;
+                                MessageBox.success(`Dodano produkty do faktury nr ${invoiceNr}`);
                                 oInvoiceModel.setProperty("/products", notSelectedProducts);
             }.bind(this),
             error: function(oError) {
@@ -553,7 +553,9 @@ sap.ui.define([
                 oInvoiceModel = this.getView().getModel("invoiceModel"),
                 oCustomerModel = this.getView().getModel("customerModel"),
                 oCustomerData = oCustomerModel.getProperty("/"),
-                aProducts = oInvoiceModel.getProperty("/products"),
+                aProducts = this.getView().byId("invoiceTable").getSelectedItems().map(el => {
+                    return el.getBindingContext("invoiceModel").getObject()
+                }),
                 oAuthModel = this.getView().getModel("auth"),
                 userId = oAuthModel.getProperty("/userId");
             oViewModel.setProperty("/busy", true);
@@ -582,7 +584,7 @@ sap.ui.define([
                                 oViewModel.setProperty("/busy", false);
                                 var invoiceNr = JSON.parse(oData).invoiceNr;
                                 MessageBox.success(`Utworzono fakturę z nr ${invoiceNr}`);
-            
+                                this._oCustomerDialog.close();
                                 oInvoiceModel.setProperty("/products", notSelectedProducts);
             }.bind(this),
             error: function(oError) {
