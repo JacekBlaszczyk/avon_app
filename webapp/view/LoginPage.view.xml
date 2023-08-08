@@ -31,7 +31,7 @@
 				<Input type="Password" value="{loginModel>/password}" change="checkRegisterAvailable"/>
 				<Label text="Domena w Fakturowni" visible="{viewModel>/registerMode}"/>
 				<Input liveChange="onDomainChange" showValueStateMessage="true" value="{loginModel>/domain}" visible="{viewModel>/registerMode}" valueState="{viewModel>/domainState}" valueStateText="{viewModel>/domainStateText}"
-				placeholder="To co przed '.' w adresie">
+				placeholder="To co przed '.fakturownia.pl' w adresie (bez www i bez kropek)">
 				<layoutData>
 						<l:GridData span="XL7 L7 M7 S7"/>
 				</layoutData>
