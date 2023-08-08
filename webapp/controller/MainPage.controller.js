@@ -312,24 +312,16 @@ sap.ui.define([
                 userId = oAuthModel.getProperty("/userId"),
                 orderNr = oInvoiceModel.getProperty("/orderNr");
                 if(orderNr){
-            oViewModel.setProperty("/busy", true);
+            
             aProducts.forEach(product => {
                 selectedProducts.push({
                             name: product.name,
                             amount: product.amount,
                             price: product.unitPrice
-                        });
-                // if(product.hasPairedProduct){
-                //     selectedProducts.push({
-                //         id: product.pairedProduct._id,
-                //         name: product.pairedProduct.name,
-                //         amount: product.amount,
-                //         price: product.unitPrice
-                //     });
-                // } else {
-                //     notSelectedProducts.push(product);
-                // }
+                        });                
             })
+            if (selectedProducts.length){
+            oViewModel.setProperty("/busy", true);
             $.ajax({
                         url: `/route_to_prodsrv/invoice?userId=${userId}&orderNr=${orderNr}`,
                         type: 'PUT',
@@ -347,7 +339,10 @@ sap.ui.define([
             }
             });
         } else {
-            MessageBox.error("Podaj numer zamówienia");
+                MessageBox.error("Nie wybrano żadnych produktów");
+            }
+        } else {
+            MessageBox.error("Podaj numer faktury");
             }
             },
         onAddToMaster: function(oEvent) {
@@ -548,7 +543,6 @@ sap.ui.define([
         },
         onCreateNewInvoice: function(){
             var selectedProducts = [],
-            notSelectedProducts = [],
             oViewModel = this.getView().getModel("viewModel"),
                 oInvoiceModel = this.getView().getModel("invoiceModel"),
                 oCustomerModel = this.getView().getModel("customerModel"),
@@ -558,25 +552,18 @@ sap.ui.define([
                 }),
                 oAuthModel = this.getView().getModel("auth"),
                 userId = oAuthModel.getProperty("/userId");
-            oViewModel.setProperty("/busy", true);
+            
             aProducts.forEach(product => {
                 selectedProducts.push({
                             name: product.name,
                             amount: product.amount,
                             price: product.unitPrice
                         });
-                // if(product.hasPairedProduct){
-                //     selectedProducts.push({
-                //         id: product.pairedProduct._id,
-                //         name: product.pairedProduct.name,
-                //         amount: product.amount,
-                //         price: product.unitPrice
-                //     });
-                // } else {
-                //     notSelectedProducts.push(product);
-                // }
             })
-            $.post({
+            if (selectedProducts.length)
+            {
+                oViewModel.setProperty("/busy", true);
+                $.post({
                         url: `/route_to_prodsrv/invoice?userId=${userId}`,
                         data: encodeURIComponent(JSON.stringify({...oCustomerData, selectedProducts})),
                         dataType: "text",
@@ -592,6 +579,9 @@ sap.ui.define([
             MessageBox.error(JSON.parse(oError.responseText).error);
             }
             });
+        } else {
+            MessageBox.error("Nie wybrano żadnych produktów");
+        }
         }
     });
 
