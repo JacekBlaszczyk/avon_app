@@ -16,7 +16,10 @@ sap.ui.define([
                                 excelProducts: []
                             });
                             var oInvoiceModel = new JSONModel({
-                                products: []
+                                products: [],
+                                modifier: 0,
+                                modifierCurrency: 0,
+                                modifierAmount: 0
                             });
                             var oViewModel = new JSONModel({
                                 addToChangePriceEnabled: false,
@@ -310,7 +313,10 @@ sap.ui.define([
                 }),
                 oAuthModel = this.getView().getModel("auth"),
                 userId = oAuthModel.getProperty("/userId"),
-                orderNr = oInvoiceModel.getProperty("/orderNr");
+                orderNr = oInvoiceModel.getProperty("/orderNr"),
+                modifier = oInvoiceModel.getProperty("/modifier") === 0 ? "plus" : "minus",
+                modifierAmount = parseFloat(oInvoiceModel.getProperty("/modifierAmount").replaceAll(",", ".")),
+                modifierCurrency = oInvoiceModel.getProperty("/modifierCurrency") === 0 ? "perc" : "zl";
                 if(orderNr){
             
             aProducts.forEach(product => {
@@ -325,7 +331,12 @@ sap.ui.define([
             $.ajax({
                         url: `/route_to_prodsrv/invoice?userId=${userId}&orderNr=${orderNr}`,
                         type: 'PUT',
-                        data: encodeURIComponent(JSON.stringify(selectedProducts)),
+                        data: encodeURIComponent(JSON.stringify({
+                            selectedProducts,
+                            modifier,
+                            modifierAmount,
+                            modifierCurrency
+                        })),
                         dataType: "text",
                         success: function(oData) {
                                 oViewModel.setProperty("/busy", false);
@@ -551,7 +562,10 @@ sap.ui.define([
                     return el.getBindingContext("invoiceModel").getObject()
                 }),
                 oAuthModel = this.getView().getModel("auth"),
-                userId = oAuthModel.getProperty("/userId");
+                userId = oAuthModel.getProperty("/userId"),
+                modifier = oInvoiceModel.getProperty("/modifier") === 0 ? "plus" : "minus",
+                modifierAmount = parseFloat(oInvoiceModel.getProperty("/modifierAmount").replaceAll(",", ".")),
+                modifierCurrency = oInvoiceModel.getProperty("/modifierCurrency") === 0 ? "perc" : "zl";;
             
             aProducts.forEach(product => {
                 selectedProducts.push({
@@ -565,7 +579,12 @@ sap.ui.define([
                 oViewModel.setProperty("/busy", true);
                 $.post({
                         url: `/route_to_prodsrv/invoice?userId=${userId}`,
-                        data: encodeURIComponent(JSON.stringify({...oCustomerData, selectedProducts})),
+                        data: encodeURIComponent(JSON.stringify({
+                            ...oCustomerData,
+                            selectedProducts,
+                            modifier,
+                            modifierAmount,
+                            modifierCurrency})),
                         dataType: "text",
                         success: function(oData) {
                                 oViewModel.setProperty("/busy", false);

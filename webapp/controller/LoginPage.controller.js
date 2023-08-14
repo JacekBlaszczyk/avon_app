@@ -119,7 +119,6 @@ sap.ui.define([
         },   
         onRegister: function() {
             var oLoginModel = this.getView().getModel("loginModel");
-            var fullDiscount = this.getView().getModel("viewModel").getProperty("/fullDiscount");
             $.post({
                 url: "/route_to_prodsrv/register",
                 data: JSON.stringify(oLoginModel.getProperty("/")),
