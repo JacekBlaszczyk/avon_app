@@ -19,7 +19,7 @@ sap.ui.define([
                                 products: [],
                                 modifier: 0,
                                 modifierCurrency: 0,
-                                modifierAmount: 0
+                                modifierAmount: "0"
                             });
                             var oViewModel = new JSONModel({
                                 addToChangePriceEnabled: false,
@@ -315,8 +315,15 @@ sap.ui.define([
                 userId = oAuthModel.getProperty("/userId"),
                 orderNr = oInvoiceModel.getProperty("/orderNr"),
                 modifier = oInvoiceModel.getProperty("/modifier") === 0 ? "plus" : "minus",
-                modifierAmount = parseFloat(oInvoiceModel.getProperty("/modifierAmount").replaceAll(",", ".")),
+                modifierAmount,
                 modifierCurrency = oInvoiceModel.getProperty("/modifierCurrency") === 0 ? "perc" : "zl";
+
+                try {
+                    modifierAmount = parseFloat(oInvoiceModel.getProperty("/modifierAmount").replaceAll(",", "."));
+                } catch (err) {
+                    modifierAmount = 0;
+                }
+
                 if(orderNr){
             
             aProducts.forEach(product => {
@@ -465,7 +472,7 @@ sap.ui.define([
         },
         _import: function(file) {
             var that = this;
-            var oModel = this.getView().getModel("productsModel");
+            var oModel = this.getView().getModel("invoiceModel");
             var excelData = {};
             if (file && window.FileReader) {
                 var reader = new FileReader();
@@ -475,17 +482,17 @@ sap.ui.define([
                         type: 'binary'
                     });
                     workbook.SheetNames.forEach(function(sheetName) {
-                        var excelProducts = [...oModel.getProperty("/excelProducts")];
-                        for (let i = 8; i <= 218; i++) {
-                            if (workbook.Sheets[sheetName]["D" + i] && workbook.Sheets[sheetName]["I" + i]) {
+                        var excelProducts = [...oModel.getProperty("/products")];
+                        for (let i = 2; i <= 739; i++) {
+                            if (workbook.Sheets[sheetName]["A" + i] && workbook.Sheets[sheetName]["K" + i] && workbook.Sheets[sheetName]["M" + i]) {
                                 excelProducts.push({
-                                    name: workbook.Sheets[sheetName]["D" + i].v,
-                                    price: parseFloat(workbook.Sheets[sheetName]["I" + i].w.split("zł")[0].trim().replace(",", ".")),
-                                    pairedProducts: []
+                                    name: workbook.Sheets[sheetName]["A" + i].v,
+                                    amount: workbook.Sheets[sheetName]["K" + i].v,
+                                    unitPrice: Math.round(workbook.Sheets[sheetName]["D" + i].v * 100) / 100
                                 })
                             }
                         }
-                        oModel.setProperty("/excelProducts", excelProducts);
+                        oModel.setProperty("/products", excelProducts.sort((a, b) => b.amount - a.amount));
 
                     });
                     // Setting the data to the local model 
@@ -564,15 +571,18 @@ sap.ui.define([
                 oAuthModel = this.getView().getModel("auth"),
                 userId = oAuthModel.getProperty("/userId"),
                 modifier = oInvoiceModel.getProperty("/modifier") === 0 ? "plus" : "minus",
-                modifierAmount = parseFloat(oInvoiceModel.getProperty("/modifierAmount").replaceAll(",", ".")),
+                modifierAmount,
                 modifierCurrency = oInvoiceModel.getProperty("/modifierCurrency") === 0 ? "perc" : "zl";;
-            
+                modifierAmount = parseFloat(oInvoiceModel.getProperty("/modifierAmount").replaceAll(",", "."));
+                
             aProducts.forEach(product => {
+                if (product.amount){
                 selectedProducts.push({
                             name: product.name,
                             amount: product.amount,
                             price: product.unitPrice
                         });
+                    }
             })
             if (selectedProducts.length)
             {

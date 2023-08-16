@@ -110,6 +110,7 @@
 						<Table growing="true" mode="MultiSelect" growingThreshold="1000" growingScrollToLoad="true" selectionChange="onInvoiceTableSelectionChange" sticky="HeaderToolbar" id="invoiceTable" items="{invoiceModel>/products}">
 							<headerToolbar>
 								<Toolbar>
+								<!-- <u:FileUploader id="fileUploaderExcel" name="excel" multiple="false" fileType="XLSX,xlsx" change="onUploadExcel" /> -->
 									<u:FileUploader id="fileUploader" name="invoice" multiple="true" fileType="pdf" uploadUrl="/route_to_invoicesrv/invoice" tooltip="Dodaj fakturę z avonu" uploadComplete="handleUploadComplete"/>
 									<Button text="Załaduj faktury" press="handleUploadPress"/>
 									<RadioButtonGroup columns="2" selectedIndex="{invoiceModel>/modifier}">
