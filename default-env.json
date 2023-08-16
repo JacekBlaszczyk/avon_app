@@ -6,7 +6,7 @@
     },
     {
       "name": "env_invoice_prodsrv",
-      "url": "http://localhost:8081"
+      "url": "https://invoiceapi.onrender.com"
     }
   ]
 }
