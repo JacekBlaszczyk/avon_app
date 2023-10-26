@@ -2,11 +2,11 @@
   "destinations": [
     {
       "name": "env_destination_prodsrv",
-      "url": "https://avonapi.onrender.com"
+      "url": "https://avon-api-7ma6.onrender.com"
     },
     {
       "name": "env_invoice_prodsrv",
-      "url": "https://invoiceapi.onrender.com"
+      "url": "https://invoice-api-iahq.onrender.com"
     }
   ]
 }
