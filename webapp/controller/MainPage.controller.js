@@ -507,7 +507,7 @@ sap.ui.define([
         handleUploadComplete: function(oEvent) {
 			var sResponse = oEvent.getParameter("response"),
             aBaselinkerProducts = this.getView().getModel("productsModel").getProperty("/allProducts"),
-				aProducts = JSON.parse(sResponse.replaceAll('<pre style="word-wrap: break-word; white-space: pre-wrap;">', "").replaceAll("</pre>", "")),
+				aProducts = JSON.parse(sResponse.replaceAll('<div class="json-formatter-container"></div>', "").replaceAll("<pre>", "").replaceAll('<pre style="word-wrap: break-word; white-space: pre-wrap;">', "").replaceAll("</pre>", "")),
                 oViewModel = this.getView().getModel("viewModel");
 
                 oViewModel.setProperty("/busy", false);
