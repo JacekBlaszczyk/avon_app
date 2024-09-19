@@ -33,7 +33,7 @@ sap.ui.define([
                 url: "/route_to_prodsrv/ping"
             });            
             $.get({
-                url: "/route_to_prodsrv/ping"
+                url: "/route_to_invoicesrv/ping"
             });
         }
         onLogin: function() {
