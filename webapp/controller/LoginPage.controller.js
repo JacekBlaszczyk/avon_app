@@ -35,7 +35,7 @@ sap.ui.define([
             $.get({
                 url: "/route_to_invoicesrv/ping"
             });
-        }
+        },
         onLogin: function() {
             var oLoginModel = this.getView().getModel("loginModel");
             $.post({
