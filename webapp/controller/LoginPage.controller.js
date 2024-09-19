@@ -28,6 +28,14 @@ sap.ui.define([
             });
             this.getView().setModel(oLoginModel, "loginModel");
         },
+        onAfterRendering: function(){
+            $.get({
+                url: "/route_to_prodsrv/ping"
+            });            
+            $.get({
+                url: "/route_to_prodsrv/ping"
+            });
+        }
         onLogin: function() {
             var oLoginModel = this.getView().getModel("loginModel");
             $.post({
